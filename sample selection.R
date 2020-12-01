@@ -1,4 +1,5 @@
 library(tidyverse)
+library(zscorer)
 ##导入文件
 bm.all <- read.csv(file = "Metadata of breastmilk questionnaire.csv",stringsAsFactors = F)
 bm.all$id <- as.numeric(bm.all$id)
@@ -32,6 +33,7 @@ bm.m5 <- bm.all %>%
   filter(age_baby >=121 & age_baby <=150)
 bm.m6 <- bm.all %>%
   filter(age_baby>=151 & age_baby<=180)
+
 #先看1月龄的样本
 summary(bm.m1$TB1)
 summary(bm.m1$TB3)
@@ -44,7 +46,7 @@ boxplot(bm.m1$TA1)#乳母身高
 bm.m1$MonBMI <- bm.m1$TA3/((bm.m1$TA1/100)^2)
 summary(bm.m1$MonBMI)
 #1月龄z评分
-library(zscorer)
+
 bm.m1 <- addWGSR(data = bm.m1, sex = "A4", firstPart = "TB3", 
                   secondPart = "TB1", thirdPart = "age_baby", index = "bfa")#A4为婴儿性别
 
@@ -80,7 +82,7 @@ length(bm.m2$MonBMI[bm.m2$MonBMI>27.5])
 length(bm.m2$MonBMI[bm.m2$MonBMI>=18.5 & bm.m2$MonBMI<=23])
 length(bm.m2$MonBMI[bm.m2$MonBMI>23])
 #2月龄z评分
-library(zscorer)
+
 boxplot(bm.m2$TB3)
 boxplot(bm.m2$TB1)
 bm.m2 <- addWGSR(data = bm.m2, sex = "A4", firstPart = "TB3", 
@@ -99,15 +101,14 @@ length(bm.m2$bfaz[bm.m2$bfaz<=-1]) # 60
 length(bm.m2$bfaz[bm.m2$bfaz>=1]) # 110
 length(bm.m2$bfaz[bm.m2$wfaz>=1]) # 104
 length(bm.m2$bfaz[bm.m2$wfaz<=-1]) #57
-length(bm.m2$bfaz[bm.m2$hfaz>=2]) # 100
-length(bm.m2$bfaz[bm.m2$hfaz<=-2]) # 96
+length(bm.m2$bfaz[bm.m2$hfaz>=2]) # 37
+length(bm.m2$bfaz[bm.m2$hfaz<=-2]) # 32
 
 # 对2月的样本进行初步筛选
 # 先把乳母BMI>=18.5的选出来
 bm.m2MonBMI <- bm.m2 %>%
   filter(MonBMI>=18.5)
-write.csv(bm.m2MonBMI,file = "questionaire data for month 2.csv",
-          row.names = F)
+
 #1为肥胖，2为正常，3为超重
 bm.m2MonBMI <- bm.m2MonBMI %>%
   mutate(nBMI=case_when(MonBMI>27.5~1,
@@ -117,7 +118,7 @@ table(bm.m2MonBMI$nBMI)
 #去掉hfaz的极端值：绝对值大于5
 bm.m2MonBMI <- bm.m2MonBMI %>%
   filter(abs(hfaz)<=5)
-#生成hfaz四分位
+# 哈尔滨和武汉的样本存放在-40°冰箱，最好不用
 bm.m2MonBMI <- bm.m2MonBMI %>%
   filter(city %in% c("北京",
                  "成都",
@@ -126,50 +127,35 @@ bm.m2MonBMI <- bm.m2MonBMI %>%
                  "兰州",
                  "威海",
                  "郑州"))
-bm.m2MonBMI$nhfaz <- ntile(bm.m2MonBMI$hfaz,4)
+
+#生成hfaz四分位
+bm.m2MonBMI$nhfaz <- ntile(bm.m2MonBMI$hfaz,3)
 table(bm.m2MonBMI$nhfaz)
-bm.m2Head <- bm.m2MonBMI %>%
+save(bm.m2MonBMI,file = "data/bm.m2MonBMI.Rdata")
+# 筛选样本：以母亲BMI为准还是以婴儿z评分为主？？
+# 都筛一下看看区别
+## Maternal BMI
+bm.m2MBMI <- bm.m2MonBMI %>%
   arrange(desc(MonBMI)) %>%
-  slice(c(1:50,324:373))
-table(bm.m2Head$nhfaz)
-table(bm.m2Head$B401)
-length(bm.m2Head$hfaz[bm.m2Head$hfaz<=-1])
-length(bm.m2Head$hfaz[bm.m2Head$hfaz>=1])
+  slice(c(1:60,237:296))
 
+table(bm.m2MBMI$nhfaz)
+table(bm.m2MBMI$B401)
+table(bm.m2MBMI$city)
+length(bm.m2MBMI$hfaz[bm.m2MBMI$hfaz<=-1])
+length(bm.m2MBMI$hfaz[bm.m2MBMI$hfaz>=1])
 
-bm.m2Yibai <- bm.m2MonBMI %>%
-  arrange(desc(MonBMI)) %>%
-  slice(c(1:60,314:373))
-table(bm.m2Yibai$city)
+## Infant z score
+bm.m2Izs <- bm.m2MonBMI %>%
+  arrange(desc(hfaz)) %>%
+  slice(c(1:60,237:296))
 
-write.csv(bm.m2Yibai,file = "month 2 samples for metabolome.csv")
-table(bm.m2Yibai$nhfaz)
-length(bm.m2Yibai$hfaz[bm.m2Yibai$hfaz<=-1])
-length(bm.m2Yibai$hfaz[bm.m2Yibai$hfaz>=1])
+table(bm.m2Izs$nBMI)
+table(bm.m2Izs$B401)
+table(bm.m2Izs$city)
+length(bm.m2Izs$hfaz[bm.m2Izs$hfaz<=-1])
+length(bm.m2Izs$hfaz[bm.m2Izs$hfaz>=1])
 
-#nBMI=1
-length(bm.m2MonBMI$id[bm.m2MonBMI$nBMI==1 & bm.m2MonBMI$nhfaz==1]) #4
-length(bm.m2MonBMI$id[bm.m2MonBMI$nBMI==1 & bm.m2MonBMI$nhfaz==4]) #8
-length(bm.m2MonBMI$id[bm.m2MonBMI$nBMI==2 & bm.m2MonBMI$nhfaz==1]) #62
-length(bm.m2MonBMI$id[bm.m2MonBMI$nBMI==2 & bm.m2MonBMI$nhfaz==4]) #47
-length(bm.m2MonBMI$id[bm.m2MonBMI$nBMI==3 & bm.m2MonBMI$nhfaz==1]) #28
-length(bm.m2MonBMI$id[bm.m2MonBMI$nBMI==3 & bm.m2MonBMI$nhfaz==4]) #38
-
-
-
-length(bm.m2MonBMI$bfaz[bm.m2MonBMI$bfaz<=-1]) # 59
-length(bm.m2MonBMI$bfaz[bm.m2MonBMI$bfaz>=1]) # 99
-length(bm.m2MonBMI$bfaz[bm.m2MonBMI$wfaz>=1]) # 97
-length(bm.m2MonBMI$bfaz[bm.m2MonBMI$wfaz<=-1]) #54
-length(bm.m2MonBMI$bfaz[bm.m2MonBMI$hfaz>=1]) # 97
-length(bm.m2MonBMI$bfaz[bm.m2MonBMI$hfaz<=-1]) # 91
-
-bm.m2Zscore <- bm.m2MonBMI %>%
-  filter(bfaz>=1 | bfaz<=-1 | MonBMI>27.5)
-
-length(bm.m2Zscore$MonBMI[bm.m2Zscore$MonBMI>27.5])
-length(bm.m2Zscore$MonBMI[bm.m2Zscore$MonBMI>=18.5 & bm.m2Zscore$MonBMI<=23])
-length(bm.m2Zscore$MonBMI[bm.m2Zscore$MonBMI>23])
 
 ##################
 ##################
@@ -233,38 +219,41 @@ table(bm.m6MonBMI$nBMI)
 #去掉hfaz的极端值：绝对值大于5
 bm.m6MonBMI <- bm.m6MonBMI %>%
   filter(abs(hfaz)<=5)
+# 哈尔滨和武汉的样本存放在-40°冰箱，最好不用
+bm.m6MonBMI <- bm.m6MonBMI %>%
+  filter(city %in% c("北京",
+                     "成都",
+                     "广州",
+                     "金华",
+                     "兰州",
+                     "威海",
+                     "郑州"))
+
 #生成hfaz四分位
-bm.m6MonBMI$nhfaz <- ntile(bm.m6MonBMI$hfaz,4)
+bm.m6MonBMI$nhfaz <- ntile(bm.m6MonBMI$hfaz,3)
 table(bm.m6MonBMI$nhfaz)
 
-bm.m6Head <- bm.m6MonBMI %>%
+bm.m6MBMI <- bm.m6MonBMI %>%
   arrange(desc(MonBMI)) %>%
-  slice(c(1:60,182:241))
-write.csv(bm.m6Head,file = "month 6 samples for metabolome.csv",
-          row.names = F)
+  slice(c(1:60,115:174))
 
-#nBMI=1
-length(bm.m6MonBMI$id[bm.m6MonBMI$nBMI==1 & bm.m6MonBMI$nhfaz==1]) #5
-length(bm.m6MonBMI$id[bm.m6MonBMI$nBMI==1 & bm.m6MonBMI$nhfaz==4]) #9
-length(bm.m6MonBMI$id[bm.m6MonBMI$nBMI==2 & bm.m6MonBMI$nhfaz==1]) #33
-length(bm.m6MonBMI$id[bm.m6MonBMI$nBMI==2 & bm.m6MonBMI$nhfaz==4]) #28
-length(bm.m6MonBMI$id[bm.m6MonBMI$nBMI==3 & bm.m6MonBMI$nhfaz==1]) #23
-length(bm.m6MonBMI$id[bm.m6MonBMI$nBMI==3 & bm.m6MonBMI$nhfaz==4]) #23
+table(bm.m6MBMI$nhfaz)
+table(bm.m6MBMI$B401)
+table(bm.m6MBMI$city)
+length(bm.m6MBMI$hfaz[bm.m6MBMI$hfaz<=-1])
+length(bm.m6MBMI$hfaz[bm.m6MBMI$hfaz>=1])
+
+## Infant z score
+bm.m6Izs <- bm.m6MonBMI %>%
+  arrange(desc(hfaz)) %>%
+  slice(c(1:60,115:174))
+
+table(bm.m6Izs$nBMI)
+table(bm.m6Izs$B401)
+table(bm.m6Izs$city)
+length(bm.m6Izs$hfaz[bm.m6Izs$hfaz<=-1])
+length(bm.m6Izs$hfaz[bm.m6Izs$hfaz>=1])
 
 
 
 
-
-length(bm.m6MonBMI$bfaz[bm.m6MonBMI$bfaz<=-1]) # 40
-length(bm.m6MonBMI$bfaz[bm.m6MonBMI$bfaz>=1]) # 82
-length(bm.m6MonBMI$bfaz[bm.m6MonBMI$wfaz>=1]) # 101
-length(bm.m6MonBMI$bfaz[bm.m6MonBMI$wfaz<=-1]) # 16
-length(bm.m6MonBMI$bfaz[bm.m6MonBMI$hfaz>=1]) # 97
-length(bm.m6MonBMI$bfaz[bm.m6MonBMI$hfaz<=-1]) # 36
-
-bm.m2Zscore <- bm.m2MonBMI %>%
-  filter(bfaz>=1 | bfaz<=-1 | MonBMI>27.5)
-
-length(bm.m2Zscore$MonBMI[bm.m2Zscore$MonBMI>27.5])
-length(bm.m2Zscore$MonBMI[bm.m2Zscore$MonBMI>=18.5 & bm.m2Zscore$MonBMI<=23])
-length(bm.m2Zscore$MonBMI[bm.m2Zscore$MonBMI>23])
