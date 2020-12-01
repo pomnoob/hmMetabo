@@ -145,6 +145,7 @@ table(bm.m2MBMI$city)
 length(bm.m2MBMI$hfaz[bm.m2MBMI$hfaz<=-1])
 length(bm.m2MBMI$hfaz[bm.m2MBMI$hfaz>=1])
 
+save(bm.m2MBMI,file="data/bm.m2MBMI.Rdata")
 ## Infant z score
 bm.m2Izs <- bm.m2MonBMI %>%
   arrange(desc(hfaz)) %>%
@@ -155,7 +156,7 @@ table(bm.m2Izs$B401)
 table(bm.m2Izs$city)
 length(bm.m2Izs$hfaz[bm.m2Izs$hfaz<=-1])
 length(bm.m2Izs$hfaz[bm.m2Izs$hfaz>=1])
-
+save(bm.m2Izs,file="data/bm.m2Izs.Rdata")
 
 ##################
 ##################
@@ -186,7 +187,7 @@ length(bm.m6$MonBMI[bm.m6$MonBMI>27.5]) # 33
 length(bm.m6$MonBMI[bm.m6$MonBMI>=18.5 & bm.m6$MonBMI<=23]) # 126
 length(bm.m6$MonBMI[bm.m6$MonBMI>23]) # 119
 #6月龄z评分
-library(zscorer)
+
 boxplot(bm.m6$TB3)
 boxplot(bm.m6$TB1)
 bm.m6 <- addWGSR(data = bm.m6, sex = "A4", firstPart = "TB3", 
@@ -232,10 +233,12 @@ bm.m6MonBMI <- bm.m6MonBMI %>%
 #生成hfaz四分位
 bm.m6MonBMI$nhfaz <- ntile(bm.m6MonBMI$hfaz,3)
 table(bm.m6MonBMI$nhfaz)
+save(bm.m6MonBMI,file = "data/bm.m6MonBMI.Rdata")
 
 bm.m6MBMI <- bm.m6MonBMI %>%
   arrange(desc(MonBMI)) %>%
   slice(c(1:60,115:174))
+save(bm.m6MBMI,file = "data/bm.m6MBMI.Rdata")
 
 table(bm.m6MBMI$nhfaz)
 table(bm.m6MBMI$B401)
@@ -247,6 +250,7 @@ length(bm.m6MBMI$hfaz[bm.m6MBMI$hfaz>=1])
 bm.m6Izs <- bm.m6MonBMI %>%
   arrange(desc(hfaz)) %>%
   slice(c(1:60,115:174))
+save(bm.m6Izs,file = "data/bm.m6Izs.Rdata")
 
 table(bm.m6Izs$nBMI)
 table(bm.m6Izs$B401)
