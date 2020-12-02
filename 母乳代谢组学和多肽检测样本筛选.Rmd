@@ -1,0 +1,216 @@
+---
+title: "母乳代谢组学和多肽检测样本筛选"
+author:
+  - 李凯风
+documentclass: ctexart
+output:
+  rticles::ctex:
+    fig_caption: yes
+    number_sections: yes
+    toc: no
+    df_print: kable
+---
+
+# 二月龄样本筛选
+
+  样本筛选的策略有两个：
+  
+## 母亲BMI为主要目标，对其进行排序后分别选取BMI最大和最小的60个共120个样本。
+
+  选取样本后，查看这些样本所对应的婴儿身长z评分（LAZ）三分位、过敏事件和样本所在城市的分布情况:
+```{r,include=FALSE,echo=FALSE}
+load(file = "D:/Rdata/hmMetabo/hmMetabo/data/bm.m2MBMI.Rdata")
+BMI.hfaz <- as.data.frame(table(bm.m2MBMI$nhfaz))
+BMI.hfaz <- dplyr::rename(BMI.hfaz,"LAZ三分位"=Var1,
+                          "样本个数"=Freq)
+```
+```{r 打印身长z评分,echo=FALSE}
+knitr::kable(BMI.hfaz,align = "c",
+             caption = "LAZ三分位分布")
+```
+
+
+```{r BMI过敏, include=FALSE,echo=FALSE}
+load(file = "D:/Rdata/hmMetabo/hmMetabo/data/bm.m2MBMI.Rdata")
+BMI.allergy <- as.data.frame(table(bm.m2MBMI$B401))
+BMI.allergy$Var1 <- ifelse(BMI.allergy$Var1==0,"是","否")
+BMI.allergy <- dplyr::rename(BMI.allergy,"是否过敏"=Var1,
+                             "样本个数"=Freq)
+```
+```{r 打印BMI过敏,echo=FALSE}
+knitr::kable(BMI.allergy,align = "c",
+             caption = "婴儿过敏事件")
+```
+
+
+```{r BMI城市, include=FALSE,echo=FALSE}
+BMI.city <- as.data.frame(table(bm.m2MBMI$city))
+BMI.city <- dplyr::rename(BMI.city,"所在城市"=Var1,
+                             "样本个数"=Freq)
+```
+```{r 打印BMI城市,echo=FALSE}
+knitr::kable(BMI.city,align = "c",
+             caption = "样本所在城市")
+```
+
+## 以LAZ为主要目的，对对其进行排序后分别选取LAZ最大和最小的60个共120个样本。
+
+  选取样本后，查看母亲BMI、过敏事件和样本所在城市的分布情况:
+  
+```{r BMI,include=FALSE,echo=FALSE}
+library(tidyverse)
+load(file = "D:/Rdata/hmMetabo/hmMetabo/data/bm.m2Izs.Rdata")
+hfaz.BMI <- as.data.frame(table(bm.m2Izs$nBMI))
+hfaz.BMI$Var1 <- c("肥胖","正常","超重")
+hfaz.BMI <- dplyr::rename(hfaz.BMI,"母亲肥胖情况"=Var1,
+                          "样本个数"=Freq) %>%
+  arrange(样本个数)
+
+```
+```{r 打印BMI,echo=FALSE}
+knitr::kable(hfaz.BMI,align = "c",
+             caption = "母亲的肥胖情况")
+```
+
+
+```{r hfaz过敏, include=FALSE,echo=FALSE}
+hfaz.allergy <- as.data.frame(table(bm.m2Izs$B401))
+hfaz.allergy$Var1 <- ifelse(hfaz.allergy$Var1==0,"是","否")
+hfaz.allergy <- dplyr::rename(hfaz.allergy,"是否过敏"=Var1,
+                             "样本个数"=Freq)
+```
+```{r 打印hfaz过敏,echo=FALSE}
+knitr::kable(hfaz.allergy,align = "c",
+             caption = "婴儿过敏事件")
+```
+
+
+```{r hfaz城市, include=FALSE,echo=FALSE}
+hfaz.city <- as.data.frame(table(bm.m2Izs$city))
+hfaz.city <- dplyr::rename(hfaz.city,"所在城市"=Var1,
+                             "样本个数"=Freq)
+```
+```{r 打印hfaz城市,echo=FALSE}
+
+knitr::kable(hfaz.city,align = "c",
+             caption = "样本所在城市")
+```
+
+# 六月龄样本筛选
+
+  与二月龄样本一样，筛选的策略有两个：
+  
+## 母亲BMI为主要目标，对其进行排序后分别选取BMI最大和最小的60个共120个样本。
+
+  选取样本后，查看这些样本所对应的LAZ三分位、过敏事件和样本所在城市的分布情况:
+```{r,include=FALSE,echo=FALSE}
+load(file = "D:/Rdata/hmMetabo/hmMetabo/data/bm.m6MBMI.Rdata")
+BMI6.hfaz <- as.data.frame(table(bm.m6MBMI$nhfaz))
+BMI6.hfaz <- dplyr::rename(BMI6.hfaz,"LAZ三分位"=Var1,
+                          "样本个数"=Freq)
+```
+```{r 身长z评分6,echo=FALSE}
+knitr::kable(BMI6.hfaz,align = "c",
+             caption = "LAZ三分位分布")
+```
+
+
+```{r BMI过敏6, include=FALSE,echo=FALSE}
+BMI6.allergy <- as.data.frame(table(bm.m6MBMI$B401))
+BMI6.allergy$Var1 <- ifelse(BMI6.allergy$Var1==0,"是","否")
+BMI6.allergy <- dplyr::rename(BMI6.allergy,"是否过敏"=Var1,
+                             "样本个数"=Freq)
+```
+```{r 打印BMI过敏6,echo=FALSE}
+knitr::kable(BMI6.allergy,align = "c",
+             caption = "婴儿过敏事件")
+```
+
+
+```{r BMI城市6, include=FALSE,echo=FALSE}
+BMI6.city <- as.data.frame(table(bm.m6MBMI$city))
+BMI6.city <- dplyr::rename(BMI6.city,"所在城市"=Var1,
+                             "样本个数"=Freq)
+```
+```{r 打印BMI城市6,echo=FALSE}
+knitr::kable(BMI6.city,align = "c",
+             caption="样本所在城市")
+```
+
+## 以LAZ为主要目的，对其进行排序后分别选取LAZ最大和最小的60个共120个样本。
+
+  选取样本后，查看母亲BMI、过敏事件和样本所在城市的分布情况:
+  
+```{r BMI6,include=FALSE,echo=FALSE}
+load(file = "D:/Rdata/hmMetabo/hmMetabo/data/bm.m6Izs.Rdata")
+hfaz6.BMI <- as.data.frame(table(bm.m6Izs$nBMI))
+hfaz6.BMI$Var1 <- c("肥胖","正常","超重")
+hfaz6.BMI <- dplyr::rename(hfaz6.BMI,"母亲肥胖情况"=Var1,
+                          "样本个数"=Freq) %>%
+  arrange(样本个数)
+
+```
+```{r 打印BMI6,echo=FALSE}
+knitr::kable(hfaz6.BMI,align = "c",
+             caption = "母亲肥胖情况")
+```
+
+
+```{r hfaz过敏6, include=FALSE,echo=FALSE}
+hfaz6.allergy <- as.data.frame(table(bm.m6Izs$B401))
+hfaz6.allergy$Var1 <- ifelse(hfaz6.allergy$Var1==0,"是","否")
+hfaz6.allergy <- dplyr::rename(hfaz6.allergy,"是否过敏"=Var1,
+                             "样本个数"=Freq)
+```
+```{r 打印hfaz过敏6,echo=FALSE}
+knitr::kable(hfaz6.allergy,align = "c",
+             caption = "婴儿过敏事件")
+```
+
+
+```{r hfaz城市6, include=FALSE,echo=FALSE}
+hfaz6.city <- as.data.frame(table(bm.m6Izs$city))
+hfaz6.city <- dplyr::rename(hfaz6.city,"所在城市"=Var1,
+                             "样本个数"=Freq)
+```
+```{r 打印hfaz城市6,echo=FALSE}
+knitr::kable(hfaz6.city,align = "c",
+             caption = "样本所在城市")
+```
+
+# 问题
+
+  如果两个月龄的样本都以母亲BMI为主要目的，除了需要查看LAZ三分位以外，还需要LAZ的实际值。文献中通常定义**LAZ＞1为发育正常，LAZ＜-1为发育迟缓**，以此为标准查看样本的具体分布：
+
+**二月龄**
+```{r,include=FALSE,echo=FALSE}
+length(bm.m2MBMI$hfaz[bm.m2MBMI$hfaz<=-1])#30
+length(bm.m2MBMI$hfaz[bm.m2MBMI$hfaz>=1])#29
+hfaz2 <- data.frame(发育情况=c("正常","迟缓"),
+                           样本个数=c(29,30))
+```
+
+```{r,echo=FALSE}
+knitr::kable(hfaz2,align = "c",
+             caption = "二月龄婴儿生长发育情况")
+```
+
+**六月龄**
+```{r,include=FALSE,echo=FALSE}
+length(bm.m6MBMI$hfaz[bm.m6MBMI$hfaz<=-1])#18
+length(bm.m6MBMI$hfaz[bm.m6MBMI$hfaz>=1])#46
+hfaz6 <- data.frame(发育情况=c("正常","迟缓"),
+                           样本个数=c(46,18))
+```
+
+```{r,echo=FALSE}
+knitr::kable(hfaz6,align = "c",
+             caption = "六月龄婴儿生长发育情况")
+```
+
+如上表所示，**六月龄中生长发育迟缓的样本量偏小**。
+
+# 结论
+
+  由此可见，以婴儿的生长发育为主要目的，选取的样本更加适合用于后续的数据分析。
+
