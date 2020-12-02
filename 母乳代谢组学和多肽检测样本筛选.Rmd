@@ -2,6 +2,7 @@
 title: "母乳代谢组学和多肽检测样本筛选"
 author:
   - 李凯风
+date: "2020-12-02"
 documentclass: ctexart
 output:
   rticles::ctex:
@@ -37,6 +38,9 @@ BMI.allergy$Var1 <- ifelse(BMI.allergy$Var1==0,"是","否")
 BMI.allergy <- dplyr::rename(BMI.allergy,"是否过敏"=Var1,
                              "样本个数"=Freq)
 ```
+
+\newpage
+
 ```{r 打印BMI过敏,echo=FALSE}
 knitr::kable(BMI.allergy,align = "c",
              caption = "婴儿过敏事件")
