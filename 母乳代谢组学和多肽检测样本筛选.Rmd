@@ -218,3 +218,16 @@ knitr::kable(hfaz6,align = "c",
 
   由此可见，以婴儿的生长发育为主要目的，选取的样本更加适合用于后续的数据分析。
 
+```{r 导出csv文件,include=FALSE,echo=FALSE}
+bm.m2s <- bm.m2Izs %>%
+  select(id,city,B401,age_baby,MonBMI,
+         nBMI,hfaz,nhfaz,A4)
+write.csv(bm.m2s,file = "2月样本编号.csv",
+          row.names = F)
+bm.m6s <- bm.m6Izs %>%
+  select(id,city,B401,age_baby,MonBMI,
+         nBMI,hfaz,nhfaz,A4)
+write.csv(bm.m6s,file = "6月样本编号.csv",
+          row.names = F)
+```
+
