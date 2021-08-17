@@ -20,6 +20,18 @@ bm.all$age_mon <- as.numeric(bm.all$age_mon)
 #去除一部分月龄有问题的样本：负数
 bm.all <- bm.all %>%
   filter(age_baby>0 & age_baby<=180)
+
+
+bm.select <- bm.all %>% 
+  mutate(month_baby=case_when(age_baby<=30~1,
+                              age_baby >=31 & age_baby <=60~2,
+                              age_baby>=61 & age_baby<=90~3,
+                              age_baby >=91 & age_baby <=120~4,
+                              age_baby >=121 & age_baby <=150~5,
+                              age_baby>=151 & age_baby<=180~6)) %>% 
+  select(id, city, age_baby,month_baby)
+
+write.csv(bm.select,file = "data/母乳样本编号城市及月龄.csv",row.names=F)
 #1月龄
 bm.m1 <- bm.all %>%
   filter(age_baby<=30)
